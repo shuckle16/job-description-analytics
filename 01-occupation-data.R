@@ -3,7 +3,7 @@ library(text2vec)
 
 job_descs <- read_delim("data/Occupation Data.txt", delim = "\t")
 
-make_job_dtm <- function(job_title = "Accountant") {
+make_job_dtm <- function(job_title = "Accountants") {
   
   it_train <- itoken(job_descs$Description, 
                      preprocessor = tolower, 
@@ -20,14 +20,14 @@ make_job_dtm <- function(job_title = "Accountant") {
   dtm_train
 }
 
-find_keywords <- function(job_title = "Accountant", use_tfidf = F, remove_stopwords = F) {
+find_keywords <- function(job_title = "Accountants", n = 10, use_tfidf = F, remove_stopwords = F) {
   
   dtm_train <- make_job_dtm(job_title)
   
-  fit_transform(dtm_train, TfIdf$new())[job_title,] %>% sort(decreasing = T) %>% head(10)
+  fit_transform(dtm_train, TfIdf$new())[job_title,] %>% sort(decreasing = T) %>% head(n)
 }
 
-find_similar_jobs <- function(job_title = "Accountants") {
+find_similar_jobs <- function(job_title = "Accountants", n = 10) {
   
   dtm_train <- make_job_dtm(job_title)
   
@@ -36,7 +36,7 @@ find_similar_jobs <- function(job_title = "Accountants") {
     .[job_title,] %>% 
     sort(decreasing = T) %>% 
     head(11) %>% 
-    tail(10)
+    tail(n)
 }
 
 find_keywords("Accountants")
@@ -46,8 +46,8 @@ find_keywords("Nurse Practitioners")
 find_keywords("Registered Nurses")
 find_keywords("Postal Service Mail Carriers")
 find_keywords("Chemists")
-find_keywords("Aerospace Engineers")
+find_keywords("Aerospace Engineers", 5)
 
 find_similar_jobs("Accountants")
 find_similar_jobs("Registered Nurses")
-find_similar_jobs("Software Developers, Applications")
+find_similar_jobs("Software Developers, Applications", 5)

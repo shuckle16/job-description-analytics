@@ -16,7 +16,7 @@ find_keywords2 <- function(job_description = "Accountants", n = 10) {
       grepl(pattern = job_description, x = Title)
       ) %>% 
     inner_join(
-      find_keywords(job_description) %>%
+      find_keywords(job_description, n = 10) %>%
         tibble::enframe(name = "word", value = "tf_idf")
       ) %>% 
     mutate(
@@ -26,3 +26,6 @@ find_keywords2 <- function(job_description = "Accountants", n = 10) {
 }
 
 find_keywords2("Accountants")
+
+# broken because of slice and n 
+find_keywords2("Aerospace Engineers", 3)
