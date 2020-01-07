@@ -1,35 +1,36 @@
 library(tidyverse)
 library(text2vec)
+library(janitor)
 
 job_descs <- read_delim("data/Occupation Data.txt", delim = "\t")
 
-make_job_dtm <- function(job_title = "Accountants") {
+job_descs <- job_descs %>% clean_names()
+
+make_job_dtm <- function(job_descs) {
   
-  it_train <- itoken(job_descs$Description, 
+  it_train <- itoken(job_descs$description, 
                      preprocessor = tolower, 
                      tokenizer = word_tokenizer, 
-                     ids = job_descs$Title, 
+                     ids = job_descs$title, 
                      progressbar = FALSE)
   vocab <- create_vocabulary(it_train)
   
-  vectorizer = vocab_vectorizer(vocab)
-  t1 = Sys.time()
-  dtm_train <- create_dtm(it_train, vectorizer)
-  print(difftime(Sys.time(), t1, units = 'sec'))
+  vectorizer <- vocab_vectorizer(vocab)
+  dtm_train  <- create_dtm(it_train, vectorizer)
   
   dtm_train
 }
 
 find_keywords <- function(job_title = "Accountants", n = 10, use_tfidf = F, remove_stopwords = F) {
   
-  dtm_train <- make_job_dtm(job_title)
+  dtm_train <- make_job_dtm(job_descs)
   
   fit_transform(dtm_train, TfIdf$new())[job_title,] %>% sort(decreasing = T) %>% head(n)
 }
 
 find_similar_jobs <- function(job_title = "Accountants", n = 10) {
   
-  dtm_train <- make_job_dtm(job_title)
+  dtm_train <- make_job_dtm(job_descs)
   
   fit_transform(dtm_train, TfIdf$new()) %>% 
     sim2(x = ., method = "cosine", norm = "l2") %>% 
